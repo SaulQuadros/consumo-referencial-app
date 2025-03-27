@@ -15,6 +15,8 @@ st.title("Cálculo do Consumo Referencial Mensal de Água")
 st.markdown("""
 Este aplicativo permite calcular o **consumo mensal de referência** com base em dados históricos
 para sistemas de abastecimento de água, utilizando **percentis estatísticos**.
+
+📌 O consumo referencial é calculado com base nos **dados amostrais (KDE)**, não na distribuição normal teórica.
 """)
 
 # --- Entrada de dados ---
@@ -42,7 +44,7 @@ if uploaded_file:
         q_med = (consumo_ref / dias_mes) / tempo_dia * 1000  # em L/s
         q_max_dia = q_med * k1
         q_max_hora = q_med * k2
-        q_max_real = (np.max(consumo) / dias_mes) / tempo_dia * 1000
+        q_max_dia_hora = q_med * k1 * k2  # corrigido!
         desvio_padrao = np.std(consumo)
 
         st.header("3. Resultados")
@@ -51,7 +53,7 @@ if uploaded_file:
         st.metric("Vazão Média (L/s)", f"{q_med:.2f}")
         st.metric("Vazão Máx. Diária (L/s)", f"{q_max_dia:.2f}")
         st.metric("Vazão Máx. Horária (L/s)", f"{q_max_hora:.2f}")
-        st.metric("Vazão Máxima Dia e Hora (L/s)", f"{q_max_real:.2f}")
+        st.metric("Vazão Máxima Dia e Hora (L/s)", f"{q_max_dia_hora:.2f}")
 
         # --- Gráfico de densidade ---
         st.header("4. Gráfico de Distribuição")
@@ -95,13 +97,14 @@ if uploaded_file:
         if st.button("Gerar Relatório em Word"):
             doc = Document()
             doc.add_heading("Relatório de Consumo Referencial", 0)
+            doc.add_paragraph(f"Distribuição base: KDE (não-paramétrica)")
             doc.add_paragraph(f"Percentil de projeto: {percentil}%")
             doc.add_paragraph(f"Consumo referencial: {consumo_ref:,.0f} m³")
             doc.add_paragraph(f"Desvio padrão: {desvio_padrao:,.2f} m³")
             doc.add_paragraph(f"Vazão média: {q_med:.2f} L/s")
             doc.add_paragraph(f"Vazão máx. diária: {q_max_dia:.2f} L/s")
             doc.add_paragraph(f"Vazão máx. horária: {q_max_hora:.2f} L/s")
-            doc.add_paragraph(f"Vazão máxima dia e hora observada: {q_max_real:.2f} L/s")
+            doc.add_paragraph(f"Vazão máxima dia e hora: {q_max_dia_hora:.2f} L/s")
 
             img_bytes1 = BytesIO()
             fig1.savefig(img_bytes1, format='png')

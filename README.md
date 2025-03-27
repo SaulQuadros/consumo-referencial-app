@@ -1,3 +1,3 @@
-# Cálculo do Consumo Referencial Mensal de Água
+# Consumo Referencial de Água
 
-Aplicativo Streamlit para análise de dados históricos de consumo de água e cálculo de percentis de referência.
+App para análise de consumo mensal com KDE.
