@@ -3,5 +3,5 @@ pandas
 numpy
 matplotlib
 seaborn
-scipy
+scipy>=1.10.0
 python-docx
