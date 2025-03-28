@@ -129,17 +129,16 @@ elif aba == "📘 Sobre o Modelo Estatístico":
     st.title("📘 Sobre o Modelo Estatístico")
     st.write("Visualize abaixo o conteúdo técnico referente ao modelo estatístico utilizado.")
 
-    # Agora carregamos o arquivo HTML gerado a partir do Word/ PDF
+    # Nome do arquivo HTML
     html_file = "03_Estatistica_2025.htm"
 
     if os.path.exists(html_file):
-        # Lê todo o conteúdo do HTML
-        with open(html_file, "r", encoding="utf-8") as f:
+        # Lê o arquivo usando a codificação windows-1252 (cp1252) para evitar UnicodeDecodeError
+        with open(html_file, "r", encoding="cp1252") as f:
             html_content = f.read()
 
-        # Exibe o HTML diretamente na página
+        # Exibe o HTML no app
         st.markdown(html_content, unsafe_allow_html=True)
-
     else:
         st.warning(f"Arquivo HTML '{html_file}' não encontrado no diretório atual.")
 
