@@ -214,12 +214,6 @@ elif aba == "📘 Sobre o Modelo Estatístico":
         st.warning(f"Arquivo PDF '{pdf_file}' não encontrado no diretório atual.")
 
 
-# In[3]:
-
-
-pip install --upgrade python-docx
-
-
 # In[ ]:
 
 
