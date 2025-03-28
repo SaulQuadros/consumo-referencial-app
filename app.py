@@ -121,9 +121,9 @@ elif aba == "📘 Sobre o Modelo Estatístico":
     st.title("📘 Sobre o Modelo Estatístico")
     st.write("Visualize abaixo o conteúdo técnico referente ao modelo estatístico utilizado.")
 
-    if os.path.exists("docs_img"):
-        paginas = sorted([f for f in os.listdir("docs_img") if f.endswith(".png")])
+    if os.path.exists("docs"):
+        paginas = sorted([f for f in os.listdir("docs") if f.endswith(".png")])
         pagina_selecionada = st.selectbox("Selecione a página:", paginas)
         st.image(f"docs_img/{pagina_selecionada}", use_column_width=True)
     else:
-        st.warning("Pasta docs_img não encontrada. Verifique se as imagens foram enviadas corretamente.")
+        st.warning("Pasta docs não encontrada. Verifique se as imagens foram enviadas corretamente.")
