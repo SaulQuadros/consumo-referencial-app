@@ -19,7 +19,7 @@ from docx.shared import Inches
 
 st.set_page_config(page_title="Consumo Referencial", layout="centered")
 
-# Persistência do DataFrame
+# Persistência do DataFrame no session_state
 if "df_consumo" not in st.session_state:
     st.session_state.df_consumo = None
 
@@ -27,9 +27,15 @@ aba = st.sidebar.radio("Navegar para:", ["🧮 Cálculo do Consumo", "📘 Sobre
 
 if aba == "🧮 Cálculo do Consumo":
     st.title("Cálculo do Consumo Referencial")
-
+    
     st.header("1. Dados de Consumo Mensal")
-    if st.session_state.df_consumo is None:
+    # Se já há um CSV carregado, oferecemos opção para carregar outro
+    if st.session_state.df_consumo is not None:
+        st.info("Arquivo CSV já carregado.")
+        if st.button("Carregar outro arquivo CSV"):
+            st.session_state.df_consumo = None
+            st.experimental_rerun()
+    else:
         uploaded_file = st.file_uploader("Faça o upload de um arquivo CSV (2 colunas: Mês, Consumo (m³))", type="csv")
         if uploaded_file is not None:
             try:
@@ -42,8 +48,6 @@ if aba == "🧮 Cálculo do Consumo":
                     st.error("O arquivo precisa ter pelo menos duas colunas.")
             except Exception as e:
                 st.error(f"Erro ao ler o CSV: {e}")
-    else:
-        st.info("Arquivo CSV já carregado.")
     
     if st.session_state.df_consumo is not None:
         df = st.session_state.df_consumo
@@ -53,20 +57,20 @@ if aba == "🧮 Cálculo do Consumo":
         modelo = st.selectbox("Modelo Estatístico", ["KDE", "Distribuição Normal"])
         percentil = st.slider("Percentil de Projeto (%)", 50, 99, 95)
         dias_mes = st.number_input("Número de dias do mês", min_value=1, max_value=31, value=30)
-        tempo_dia = 86400
+        tempo_dia = 86400  # Valor fixo
         k1 = st.number_input("Coeficiente de máx. diária (K1)", min_value=1.0, value=1.4)
         k2 = st.number_input("Coeficiente de máx. horária (K2)", min_value=1.0, value=2.0)
 
         consumo = df['Consumo (m³)'].values
 
-        # 1) Cálculo do consumo referencial
+        # Cálculo do consumo referencial
         if modelo == "KDE":
-            # Cria uma figura "temporária" só para gerar a curva e extrair os dados
+            # Figura temporária para extrair os dados da KDE
             fig_temp, ax_temp = plt.subplots()
             kde = sns.kdeplot(consumo, bw_adjust=1, ax=ax_temp)
             kde_y = kde.get_lines()[0].get_ydata()
             kde_x = kde.get_lines()[0].get_xdata()
-            plt.close(fig_temp)  # Fechamos essa figura temporária
+            plt.close(fig_temp)  # Fecha a figura temporária
 
             cdf_kde = np.cumsum(kde_y)
             cdf_kde = cdf_kde / cdf_kde[-1]
@@ -74,7 +78,7 @@ if aba == "🧮 Cálculo do Consumo":
         else:
             consumo_ref = np.percentile(consumo, percentil)
 
-        # 2) Vazões
+        # Cálculo das vazões
         q_med = (consumo_ref / dias_mes) / tempo_dia * 1000
         q_max_dia = q_med * k1
         q_max_hora = q_med * k2
@@ -107,7 +111,7 @@ if aba == "🧮 Cálculo do Consumo":
         st.write(f"**{txt_dp}**")
         st.write(f"**{txt_ks}**")
 
-        # 5) Gráfico de Distribuição (fig1)
+        st.header("5. Gráfico de Distribuição")
         fig1, ax1 = plt.subplots(figsize=(10, 5))
         sns.histplot(consumo, kde=True, stat="density", color="skyblue", edgecolor="black", bins=12, ax=ax1)
         x_vals = np.linspace(min(consumo), max(consumo), 1000)
@@ -120,8 +124,8 @@ if aba == "🧮 Cálculo do Consumo":
         ax1.legend()
         st.pyplot(fig1)
 
-        # 6) Funções de Distribuição Acumulada (fig2)
-        # Precisamos gerar novamente os dados do KDE sem sobrescrever fig1
+        st.header("6. Funções de Distribuição Acumulada")
+        # Geramos uma figura temporária para extrair os dados da KDE
         fig_temp2, ax_temp2 = plt.subplots()
         kde_plot = sns.kdeplot(consumo, bw_adjust=1, ax=ax_temp2)
         kde_y2 = kde_plot.get_lines()[0].get_ydata()
@@ -146,7 +150,7 @@ if aba == "🧮 Cálculo do Consumo":
         if st.button("Gerar Relatório Word"):
             doc = Document()
             doc.add_heading("Relatório de Consumo Referencial", 0)
-
+            
             doc.add_heading("Parâmetros de Entrada", level=1)
             doc.add_paragraph(f"Modelo Estatístico: {modelo}")
             doc.add_paragraph(f"Percentil de Projeto: {percentil}%")
@@ -154,7 +158,7 @@ if aba == "🧮 Cálculo do Consumo":
             doc.add_paragraph(f"Tempo diário (s): {tempo_dia}")
             doc.add_paragraph(f"K1 (máx. diária): {k1}")
             doc.add_paragraph(f"K2 (máx. horária): {k2}")
-
+            
             doc.add_heading("Resultados", level=1)
             doc.add_paragraph(f"Consumo Referencial (m³): {consumo_ref:,.0f}")
             doc.add_paragraph(f"Desvio Padrão (m³): {desvio_padrao:,.2f}")
@@ -162,46 +166,44 @@ if aba == "🧮 Cálculo do Consumo":
             doc.add_paragraph(f"Vazão Máx. Diária (L/s): {q_max_dia:.2f}")
             doc.add_paragraph(f"Vazão Máx. Horária (L/s): {q_max_hora:.2f}")
             doc.add_paragraph(f"Vazão Máx. Dia+Hora (L/s): {q_max_real:.2f}")
-
+            
             doc.add_heading("Testes de Normalidade", level=1)
             doc.add_paragraph(txt_sw)
             doc.add_paragraph(txt_dp)
             doc.add_paragraph(txt_ks)
-
-            # Salva fig1
+            
+            # Salva a figura do Gráfico de Distribuição (fig1)
             img_buffer1 = BytesIO()
             fig1.savefig(img_buffer1, format="png", dpi=150)
             img_buffer1.seek(0)
             doc.add_heading("Gráfico de Distribuição", level=1)
             doc.add_picture(img_buffer1, width=Inches(6))
-
-            # Salva fig2
+            
+            # Salva a figura das Funções de Distribuição Acumulada (fig2)
             img_buffer2 = BytesIO()
             fig2.savefig(img_buffer2, format="png", dpi=150)
             img_buffer2.seek(0)
             doc.add_heading("Funções de Distribuição Acumulada", level=1)
             doc.add_picture(img_buffer2, width=Inches(6))
-
+            
             doc_buffer = BytesIO()
             doc.save(doc_buffer)
             doc_buffer.seek(0)
-
+            
             st.download_button(
                 label="Baixar Relatório Word",
                 data=doc_buffer.getvalue(),
                 file_name="Relatorio_Consumo.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
-
-elif aba == "📘 Sobre o Modelo Estatístico":
+            
+else:  # Aba "📘 Sobre o Modelo Estatístico"
     st.title("📘 Sobre o Modelo Estatístico")
     st.write("Clique no link abaixo para abrir o relatório PDF em uma nova aba:")
     pdf_file = "03_Estatistica_2025.pdf"
     if os.path.exists(pdf_file):
         pdf_link = f'<a href="{pdf_file}" target="_blank" rel="noopener noreferrer">Abrir Relatório PDF</a>'
         st.markdown(pdf_link, unsafe_allow_html=True)
-
-        # Botão de download do PDF
         with open(pdf_file, "rb") as f:
             pdf_bytes = f.read()
         st.download_button(
@@ -212,10 +214,4 @@ elif aba == "📘 Sobre o Modelo Estatístico":
         )
     else:
         st.warning(f"Arquivo PDF '{pdf_file}' não encontrado no diretório atual.")
-
-
-# In[ ]:
-
-
-
 
