@@ -4,13 +4,14 @@
 # In[ ]:
 
 
-import streamlit as st
+Vamos fazer o seguinte, ao invés de usar páginas HPML, quando o usuário clicar na opção "Sobre o Modelo import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import norm, shapiro, normaltest, kstest
 import os
+import base64
 
 st.set_page_config(page_title="Consumo Referencial", layout="centered")
 
@@ -40,7 +41,7 @@ if aba == "🧮 Cálculo do Consumo":
             modelo = st.selectbox("Modelo Estatístico", ["KDE", "Distribuição Normal"])
             percentil = st.slider("Percentil de Projeto (%)", 50, 99, 95)
             dias_mes = st.number_input("Número de dias do mês", min_value=1, max_value=31, value=30)
-            # Valor fixo de 86400 (não aparece mais para o usuário)
+            # Valor fixo para tempo diário
             tempo_dia = 86400
 
             k1 = st.number_input("Coeficiente de máx. diária (K1)", min_value=1.0, value=1.4)
@@ -48,7 +49,7 @@ if aba == "🧮 Cálculo do Consumo":
 
             consumo = df['Consumo (m³)'].values
 
-            # Cálculo do consumo_ref
+            # Cálculo do consumo referencial
             if modelo == "KDE":
                 kde = sns.kdeplot(consumo, bw_adjust=1)
                 kde_y = kde.get_lines()[0].get_ydata()
@@ -66,7 +67,6 @@ if aba == "🧮 Cálculo do Consumo":
             q_max_hora = q_med * k2
             q_max_real = q_med * k1 * k2
 
-            # Estatísticas básicas
             desvio_padrao = np.std(consumo)
             media = np.mean(consumo)
 
@@ -78,7 +78,6 @@ if aba == "🧮 Cálculo do Consumo":
             st.metric("Vazão Máx. Horária (L/s)", f"{q_max_hora:.2f}".replace(".", ","))
             st.metric("Vazão Máx. Dia+Hora (L/s)", f"{q_max_real:.2f}".replace(".", ","))
 
-            # Testes de normalidade
             st.header("4. Testes de Normalidade")
             stat_sw, p_sw = shapiro(consumo)
             stat_dp, p_dp = normaltest(consumo)
@@ -91,7 +90,6 @@ if aba == "🧮 Cálculo do Consumo":
             st.write(f"**D'Agostino e Pearson**: Estatística = {stat_dp:.3f}, p-valor = {p_dp:.3f} — {interpreta(p_dp)}")
             st.write(f"**Kolmogorov-Smirnov (KS)**: Estatística = {stat_ks:.3f}, p-valor = {p_ks:.3f} — {interpreta(p_ks)}")
 
-            # Gráfico de densidade
             st.header("5. Gráfico de Distribuição")
             fig1, ax1 = plt.subplots(figsize=(10, 5))
             sns.histplot(consumo, kde=True, stat="density", color="skyblue", edgecolor="black", bins=12, ax=ax1)
@@ -105,7 +103,6 @@ if aba == "🧮 Cálculo do Consumo":
             ax1.legend()
             st.pyplot(fig1)
 
-            # Gráfico de CDFs
             st.header("6. Funções de Distribuição Acumulada")
             kde = sns.kdeplot(consumo, bw_adjust=1)
             kde_y = kde.get_lines()[0].get_ydata()
@@ -127,18 +124,18 @@ if aba == "🧮 Cálculo do Consumo":
 
 elif aba == "📘 Sobre o Modelo Estatístico":
     st.title("📘 Sobre o Modelo Estatístico")
-    st.write("Visualize abaixo o conteúdo técnico referente ao modelo estatístico utilizado.")
+    st.write("Visualize abaixo o relatório completo em PDF.")
 
-    # Nome do arquivo HTML
-    html_file = "03_Estatistica_2025.htm"
+    # Nome do arquivo PDF
+    pdf_file = "03_Estatistica_2025.pdf"
 
-    if os.path.exists(html_file):
-        # Lê o arquivo usando a codificação windows-1252 (cp1252) para evitar UnicodeDecodeError
-        with open(html_file, "r", encoding="cp1252") as f:
-            html_content = f.read()
-
-        # Exibe o HTML no app
-        st.markdown(html_content, unsafe_allow_html=True)
+    if os.path.exists(pdf_file):
+        # Lê o arquivo PDF e o converte para base64
+        with open(pdf_file, "rb") as f:
+            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+        # Cria um iframe para exibir o PDF
+        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="900" type="application/pdf"></iframe>'
+        st.markdown(pdf_display, unsafe_allow_html=True)
     else:
-        st.warning(f"Arquivo HTML '{html_file}' não encontrado no diretório atual.")
+        st.warning(f"Arquivo PDF '{pdf_file}' não encontrado no diretório atual.")
 
