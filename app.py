@@ -13,6 +13,7 @@ from scipy.stats import norm, shapiro, normaltest, kstest
 import os
 import base64
 
+# Ajuste de layout/título da página
 st.set_page_config(page_title="Consumo Referencial", layout="centered")
 
 # Navegação por abas
@@ -41,7 +42,7 @@ if aba == "🧮 Cálculo do Consumo":
             modelo = st.selectbox("Modelo Estatístico", ["KDE", "Distribuição Normal"])
             percentil = st.slider("Percentil de Projeto (%)", 50, 99, 95)
             dias_mes = st.number_input("Número de dias do mês", min_value=1, max_value=31, value=30)
-            # Valor fixo para tempo diário
+            # Valor fixo para tempo diário (86400 s)
             tempo_dia = 86400
 
             k1 = st.number_input("Coeficiente de máx. diária (K1)", min_value=1.0, value=1.4)
