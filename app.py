@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -129,6 +135,9 @@ elif aba == "📘 Sobre o Modelo Estatístico":
             if 'pagina_index' not in st.session_state:
                 st.session_state.pagina_index = 0
 
+            # Slider para zoom da imagem (de 50% a 200%)
+            zoom = st.slider("Zoom da imagem (%)", min_value=50, max_value=200, value=100, step=10)
+
             col1, col2, col3 = st.columns([1, 2, 1])
             with col1:
                 if st.button("◀ Anterior", disabled=(st.session_state.pagina_index == 0)):
@@ -138,6 +147,16 @@ elif aba == "📘 Sobre o Modelo Estatístico":
                     st.session_state.pagina_index = min(st.session_state.pagina_index + 1, len(paginas)-1)
             with col2:
                 st.markdown(f"Página {st.session_state.pagina_index + 1} de {len(paginas)}")
-            st.image(f"docs/{paginas[st.session_state.pagina_index]}", use_column_width=True)
+
+            # Define uma largura base (em pixels) e aplica o fator de zoom
+            base_width = 700
+            final_width = int(base_width * (zoom / 100))
+
+            # Exibe a imagem com a largura ajustada
+            st.image(
+                f"docs/{paginas[st.session_state.pagina_index]}",
+                width=final_width
+            )
     else:
         st.warning("Pasta docs não encontrada. Verifique se as imagens foram enviadas corretamente.")
+
