@@ -10,10 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import norm, shapiro, normaltest, kstest
-from io import BytesIO
-from docx import Document
-from docx.shared import Inches
-import base64
 import os
 
 st.set_page_config(page_title="Consumo Referencial", layout="centered")
@@ -44,11 +40,15 @@ if aba == "🧮 Cálculo do Consumo":
             modelo = st.selectbox("Modelo Estatístico", ["KDE", "Distribuição Normal"])
             percentil = st.slider("Percentil de Projeto (%)", 50, 99, 95)
             dias_mes = st.number_input("Número de dias do mês", min_value=1, max_value=31, value=30)
-            tempo_dia = st.number_input("Tempo diário (segundos)", min_value=1, value=86400)
+            # Valor fixo de 86400 (não aparece mais para o usuário)
+            tempo_dia = 86400
+
             k1 = st.number_input("Coeficiente de máx. diária (K1)", min_value=1.0, value=1.4)
             k2 = st.number_input("Coeficiente de máx. horária (K2)", min_value=1.0, value=2.0)
 
             consumo = df['Consumo (m³)'].values
+
+            # Cálculo do consumo_ref
             if modelo == "KDE":
                 kde = sns.kdeplot(consumo, bw_adjust=1)
                 kde_y = kde.get_lines()[0].get_ydata()
@@ -60,10 +60,13 @@ if aba == "🧮 Cálculo do Consumo":
             else:
                 consumo_ref = np.percentile(consumo, percentil)
 
+            # Cálculo das vazões
             q_med = (consumo_ref / dias_mes) / tempo_dia * 1000
             q_max_dia = q_med * k1
             q_max_hora = q_med * k2
             q_max_real = q_med * k1 * k2
+
+            # Estatísticas básicas
             desvio_padrao = np.std(consumo)
             media = np.mean(consumo)
 
@@ -73,7 +76,7 @@ if aba == "🧮 Cálculo do Consumo":
             st.metric("Vazão Média (L/s)", f"{q_med:.2f}".replace(".", ","))
             st.metric("Vazão Máx. Diária (L/s)", f"{q_max_dia:.2f}".replace(".", ","))
             st.metric("Vazão Máx. Horária (L/s)", f"{q_max_hora:.2f}".replace(".", ","))
-            st.metric("Vazão Máxima Dia e Hora (L/s)", f"{q_max_real:.2f}".replace(".", ","))
+            st.metric("Vazão Máx. Dia+Hora (L/s)", f"{q_max_real:.2f}".replace(".", ","))
 
             # Testes de normalidade
             st.header("4. Testes de Normalidade")
@@ -126,37 +129,17 @@ elif aba == "📘 Sobre o Modelo Estatístico":
     st.title("📘 Sobre o Modelo Estatístico")
     st.write("Visualize abaixo o conteúdo técnico referente ao modelo estatístico utilizado.")
 
-    if os.path.exists("docs"):
-        paginas = sorted([f for f in os.listdir("docs") if f.endswith(".png")])
-        if not paginas:
-            st.warning("Nenhuma imagem encontrada na pasta docs.")
-        else:
-            # Inicializa o índice da página no session_state
-            if 'pagina_index' not in st.session_state:
-                st.session_state.pagina_index = 0
+    # Agora carregamos o arquivo HTML gerado a partir do Word/ PDF
+    html_file = "03_Estatistica_2025.htm"
 
-            # Slider para zoom da imagem (de 50% a 200%)
-            zoom = st.slider("Zoom da imagem (%)", min_value=50, max_value=200, value=100, step=10)
+    if os.path.exists(html_file):
+        # Lê todo o conteúdo do HTML
+        with open(html_file, "r", encoding="utf-8") as f:
+            html_content = f.read()
 
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col1:
-                if st.button("◀ Anterior", disabled=(st.session_state.pagina_index == 0)):
-                    st.session_state.pagina_index = max(st.session_state.pagina_index - 1, 0)
-            with col3:
-                if st.button("Próxima ▶", disabled=(st.session_state.pagina_index == len(paginas)-1)):
-                    st.session_state.pagina_index = min(st.session_state.pagina_index + 1, len(paginas)-1)
-            with col2:
-                st.markdown(f"Página {st.session_state.pagina_index + 1} de {len(paginas)}")
+        # Exibe o HTML diretamente na página
+        st.markdown(html_content, unsafe_allow_html=True)
 
-            # Define uma largura base (em pixels) e aplica o fator de zoom
-            base_width = 700
-            final_width = int(base_width * (zoom / 100))
-
-            # Exibe a imagem com a largura ajustada
-            st.image(
-                f"docs/{paginas[st.session_state.pagina_index]}",
-                width=final_width
-            )
     else:
-        st.warning("Pasta docs não encontrada. Verifique se as imagens foram enviadas corretamente.")
+        st.warning(f"Arquivo HTML '{html_file}' não encontrado no diretório atual.")
 
