@@ -4,7 +4,7 @@
 # In[ ]:
 
 
-Vamos fazer o seguinte, ao invés de usar páginas HPML, quando o usuário clicar na opção "Sobre o Modelo import streamlit as st
+#Vamos fazer o seguinte, ao invés de usar páginas HPML, quando o usuário clicar na opção "Sobre o Modelo import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
