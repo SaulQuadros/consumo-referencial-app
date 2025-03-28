@@ -57,7 +57,7 @@ if aba == "🧮 Cálculo do Consumo":
             q_med = (consumo_ref / dias_mes) / tempo_dia * 1000
             q_max_dia = q_med * k1
             q_max_hora = q_med * k2
-            q_max_real = (np.max(consumo) / dias_mes) / tempo_dia * 1000
+            q_max_real = q_med * k1 * k2
             desvio_padrao = np.std(consumo)
             media = np.mean(consumo)
 
@@ -123,6 +123,6 @@ elif aba == "📘 Sobre o Modelo Estatístico":
     if os.path.exists("docs"):
         paginas = sorted([f for f in os.listdir("docs") if f.endswith(".png")])
         pagina_selecionada = st.selectbox("Selecione a página:", paginas)
-        st.image(f"docs_img/{pagina_selecionada}", use_column_width=True)
+        st.image(f"docs/{pagina_selecionada}", use_column_width=True)
     else:
         st.warning("Pasta docs não encontrada. Verifique se as imagens foram enviadas corretamente.")
