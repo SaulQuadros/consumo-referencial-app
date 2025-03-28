@@ -122,7 +122,22 @@ elif aba == "📘 Sobre o Modelo Estatístico":
 
     if os.path.exists("docs"):
         paginas = sorted([f for f in os.listdir("docs") if f.endswith(".png")])
-        pagina_selecionada = st.selectbox("Selecione a página:", paginas)
-        st.image(f"docs/{pagina_selecionada}", use_column_width=True)
+        if not paginas:
+            st.warning("Nenhuma imagem encontrada na pasta docs.")
+        else:
+            # Inicializa o índice da página no session_state
+            if 'pagina_index' not in st.session_state:
+                st.session_state.pagina_index = 0
+
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col1:
+                if st.button("◀ Anterior", disabled=(st.session_state.pagina_index == 0)):
+                    st.session_state.pagina_index = max(st.session_state.pagina_index - 1, 0)
+            with col3:
+                if st.button("Próxima ▶", disabled=(st.session_state.pagina_index == len(paginas)-1)):
+                    st.session_state.pagina_index = min(st.session_state.pagina_index + 1, len(paginas)-1)
+            with col2:
+                st.markdown(f"Página {st.session_state.pagina_index + 1} de {len(paginas)}")
+            st.image(f"docs/{paginas[st.session_state.pagina_index]}", use_column_width=True)
     else:
         st.warning("Pasta docs não encontrada. Verifique se as imagens foram enviadas corretamente.")
