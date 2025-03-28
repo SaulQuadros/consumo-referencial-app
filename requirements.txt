@@ -1,7 +1,1 @@
 streamlit
-pandas
-numpy
-matplotlib
-seaborn
-scipy
-python-docx

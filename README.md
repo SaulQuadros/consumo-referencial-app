@@ -1,3 +1,3 @@
-# Consumo Referencial de Água
+# App de Consumo Referencial com Aba Sobre
 
-App para análise de consumo mensal com KDE.
+Inclui HTMLs convertidos da documentação em PDF.
