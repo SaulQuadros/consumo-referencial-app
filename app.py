@@ -1,13 +1,12 @@
-
-    import streamlit as st
-    import pandas as pd
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    from scipy.stats import norm, shapiro, normaltest, kstest
-    from io import BytesIO
-    from docx import Document
-    from docx.shared import Inches
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import norm, shapiro, normaltest, kstest
+from io import BytesIO
+from docx import Document
+from docx.shared import Inches
     import base64
     import os
 
