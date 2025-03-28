@@ -50,7 +50,6 @@ if aba == "🧮 Cálculo do Consumo":
     else:
         st.info("Arquivo CSV já carregado.")
     
-    # Se já há um CSV carregado, exibe os dados e os cálculos
     if st.session_state.df_consumo is not None:
         df = st.session_state.df_consumo
         st.dataframe(df)
@@ -149,10 +148,9 @@ if aba == "🧮 Cálculo do Consumo":
 
         st.header("Relatório em Word")
         if st.button("Gerar Relatório Word"):
-            # Cria o documento Word
             doc = Document()
             doc.add_heading("Relatório de Consumo Referencial", 0)
-            doc.add_paragraph("Relatório gerado automaticamente pelo aplicativo Streamlit.")
+            # Parâmetros de Entrada
             doc.add_heading("Parâmetros de Entrada", level=1)
             doc.add_paragraph(f"Modelo Estatístico: {modelo}")
             doc.add_paragraph(f"Percentil de Projeto: {percentil}%")
@@ -161,6 +159,7 @@ if aba == "🧮 Cálculo do Consumo":
             doc.add_paragraph(f"K1 (máx. diária): {k1}")
             doc.add_paragraph(f"K2 (máx. horária): {k2}")
 
+            # Resultados
             doc.add_heading("Resultados", level=1)
             doc.add_paragraph(f"Consumo Referencial (m³): {consumo_ref:,.0f}")
             doc.add_paragraph(f"Desvio Padrão (m³): {desvio_padrao:,.2f}")
@@ -169,20 +168,21 @@ if aba == "🧮 Cálculo do Consumo":
             doc.add_paragraph(f"Vazão Máx. Horária (L/s): {q_max_hora:.2f}")
             doc.add_paragraph(f"Vazão Máx. Dia+Hora (L/s): {q_max_real:.2f}")
 
+            # Testes de Normalidade
             doc.add_heading("Testes de Normalidade", level=1)
             doc.add_paragraph(txt_sw)
             doc.add_paragraph(txt_dp)
             doc.add_paragraph(txt_ks)
 
-            # Adiciona os gráficos
+            # Gráficos
             img_buffer1 = BytesIO()
-            fig1.savefig(img_buffer1, format="png", dpi=150)
+            fig1.savefig(img_buffer1, format="png", dpi=150, bbox_inches="tight")
             img_buffer1.seek(0)
             doc.add_heading("Gráfico de Distribuição", level=1)
             doc.add_picture(img_buffer1, width=Inches(6))
 
             img_buffer2 = BytesIO()
-            fig2.savefig(img_buffer2, format="png", dpi=150)
+            fig2.savefig(img_buffer2, format="png", dpi=150, bbox_inches="tight")
             img_buffer2.seek(0)
             doc.add_heading("Funções de Distribuição Acumulada", level=1)
             doc.add_picture(img_buffer2, width=Inches(6))
@@ -197,15 +197,18 @@ if aba == "🧮 Cálculo do Consumo":
                 file_name="Relatorio_Consumo.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
+    else:
+        st.info("Por favor, carregue um arquivo CSV para visualizar os resultados.")
 
-else:  # Aba "📘 Sobre o Modelo Estatístico"
+elif aba == "📘 Sobre o Modelo Estatístico":
     st.title("📘 Sobre o Modelo Estatístico")
     st.write("Clique no link abaixo para abrir o relatório completo em PDF em uma nova aba.")
     pdf_file = "03_Estatistica_2025.pdf"
     if os.path.exists(pdf_file):
         with open(pdf_file, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        pdf_link = f'<a href="data:application/pdf;base64,{base64_pdf}" target="_blank">Abrir Relatório PDF</a>'
+        # Adiciona atributos rel para tentar evitar bloqueio
+        pdf_link = f'<a href="data:application/pdf;base64,{base64_pdf}" target="_blank" rel="noopener noreferrer">Abrir Relatório PDF</a>'
         st.markdown(pdf_link, unsafe_allow_html=True)
     else:
         st.warning(f"Arquivo PDF '{pdf_file}' não encontrado no diretório atual.")
