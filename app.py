@@ -284,7 +284,7 @@ elif aba == "ℹ️ Sobre esse App":
       <style>
         body, h1, h2, h3, p, ol, ul, li {
           font-family: "Arial", sans-serif;
-          font-size: 12px;
+          font-size: 16px;
           line-height: 1.5;
         }
         .page { 
@@ -332,7 +332,7 @@ elif aba == "ℹ️ Sobre esse App":
         <p>
           Para maior flexibilidade, foi incluído um fator de ajuste baseado no número de horas diárias de operação 
           do sistema, permitindo ajustar as equações de vazão. Dessa forma, é possível simular diferentes cenários 
-          de operação (entre 1 hora e 24 horas diárias).
+          de operação entre 1 hora e 24 horas diárias.
         </p>
         <div class="nav-buttons">
           <button onclick="showPage(2)">Próxima &raquo;</button>
@@ -346,7 +346,7 @@ elif aba == "ℹ️ Sobre esse App":
           <li>
             <strong>Importações e Configurações:</strong> Importa bibliotecas como 
             <code>pandas</code>, <code>numpy</code>, <code>matplotlib</code>, <code>seaborn</code> 
-            e faz a chamada <code>st.set_page_config</code> logo no início (primeira instrução de Streamlit).
+            e faz a chamada <code>st.set_page_config</code> logo no início primeira instrução de (Streamlit).
           </li>
           <li>
             <strong>Session State:</strong> Utiliza <code>st.session_state</code> para manter dados entre interações.
@@ -357,8 +357,8 @@ elif aba == "ℹ️ Sobre esse App":
             <em>Sobre o Modelo Estatístico</em>.
           </li>
           <li>
-            <strong>Cálculo do Consumo:</strong> Permite o upload do CSV, configura parâmetros (incluindo número 
-            de horas diárias de operação), executa cálculos estatísticos e gera gráficos.
+            <strong>Cálculo do Consumo:</strong> Permite o upload do CSV, configura parâmetros, incluindo número 
+            de horas diárias de operação, executa cálculos estatísticos e gera gráficos.
           </li>
           <li>
             <strong>Relatório em Word:</strong> Gera um documento com os resultados e gráficos utilizando 
@@ -379,16 +379,16 @@ elif aba == "ℹ️ Sobre esse App":
           $$ f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} \\exp\\Bigl(-\\frac{(x-\\mu)^2}{2\\sigma^2}\\Bigr). $$
         </p>
         <p>
-          Os testes de normalidade (Shapiro-Wilk, D'Agostino-Pearson e Kolmogorov-Smirnov) verificam se os dados 
+          Os testes de normalidade Shapiro-Wilk, D'Agostino-Pearson e Kolmogorov-Smirnov verificam se os dados 
           seguem uma distribuição normal, aceitando a hipótese quando 
           $$ p\\text{-valor} > 0.05. $$
         </p>
         <p>
           Além disso, o fator de ajuste <em>r</em> é dado por 
           $$ r = \\frac{24}{t}, $$
-          onde <em>t</em> é o número de horas diárias de operação (entre 1 e 24 horas). 
-          Esse fator multiplica as equações de vazão, permitindo avaliar cenários de operação em períodos reduzidos 
-          (por exemplo, apenas 8 horas por dia) ou período integral de 24 horas.
+          onde <em>t</em> é o número de horas diárias de operação entre 1 e 24 horas. 
+          Esse fator multiplica as equações de vazão, permitindo avaliar cenários de operação em períodos reduzidos, 
+          por exemplo, apenas 8 horas por dia ou período integral de 24 horas.
         </p>
         <div class="nav-buttons">
           <button onclick="showPage(2)">&laquo; Anterior</button>
