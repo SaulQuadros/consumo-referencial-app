@@ -17,7 +17,7 @@ from io import BytesIO
 from docx import Document
 from docx.shared import Inches, Cm
 
-# ATENÇÃO: A chamada a set_page_config DEVE ser a primeira instrução do Streamlit:
+# 1) Configuração da página (deve ser a primeira chamada de Streamlit)
 st.set_page_config(page_title="Consumo Referencial", layout="centered")
 
 # 2) Persistência do DataFrame e chave do uploader no session_state
@@ -87,6 +87,10 @@ if aba == "🧮 Cálculo do Consumo":
         modelo = st.selectbox("Modelo Estatístico", ["KDE", "Distribuição Normal"])
         percentil = st.slider("Percentil de Projeto (%)", 50, 99, 95)
         dias_mes = st.number_input("Número de dias do mês", min_value=1, max_value=31, value=30)
+
+        # Novo campo: Número de horas diárias de operação (1 <= t <= 24)
+        horas_operacao = st.number_input("Número de horas diárias de operação", min_value=1, max_value=24, value=24, step=1)
+
         tempo_dia = 86400  # Valor fixo (segundos em um dia)
         k1 = st.number_input("Coeficiente de máx. diária (K1)", min_value=1.0, value=1.4)
         k2 = st.number_input("Coeficiente de máx. horária (K2)", min_value=1.0, value=2.0)
@@ -106,8 +110,12 @@ if aba == "🧮 Cálculo do Consumo":
         else:
             consumo_ref = np.percentile(consumo, percentil)
 
-        # Cálculo das vazões
-        q_med = (consumo_ref / dias_mes) / tempo_dia * 1000
+        # Fator de ajuste (r = 24 / t)
+        r = 24 / horas_operacao
+
+        # Cálculo das vazões (com fator de ajuste)
+        q_med_base = (consumo_ref / dias_mes) / tempo_dia * 1000
+        q_med = q_med_base * r
         q_max_dia = q_med * k1
         q_max_hora = q_med * k2
         q_max_real = q_med * k1 * k2
@@ -195,6 +203,7 @@ if aba == "🧮 Cálculo do Consumo":
             doc.add_paragraph(f"Modelo Estatístico: {modelo}")
             doc.add_paragraph(f"Percentil de Projeto: {percentil}%")
             doc.add_paragraph(f"Número de dias do mês: {dias_mes}")
+            doc.add_paragraph(f"Número de horas diárias de operação: {horas_operacao}")
             doc.add_paragraph(f"Tempo diário (s): {tempo_dia}")
             doc.add_paragraph(f"K1 (máx. diária): {k1}")
             doc.add_paragraph(f"K2 (máx. horária): {k2}")
@@ -265,6 +274,7 @@ elif aba == "📊 Gerar Histograma Consumo":
 # 6) Aba "ℹ️ Sobre esse App"
 elif aba == "ℹ️ Sobre esse App":
     st.title("Sobre esse App")
+    # HTML com estilo unificado (fonte Aptos, tamanho 12, espaçamento 1.5)
     html_content = """
     <!DOCTYPE html>
     <html lang="pt-BR">
@@ -272,13 +282,33 @@ elif aba == "ℹ️ Sobre esse App":
       <meta charset="UTF-8" />
       <title>Sobre esse App</title>
       <style>
-        .page { display: none; margin: 20px; }
-        .page.active { display: block; }
-        .nav-buttons { margin-top: 20px; }
-        button { margin: 5px; padding: 8px 16px; cursor: pointer; }
-        h1, h2, h3 { font-family: Arial, sans-serif; }
-        p { font-family: "Open Sans", Arial, sans-serif; line-height: 1.5; margin-bottom: 10px; }
-        code { background-color: #f5f5f5; padding: 2px 4px; font-size: 90%; border-radius: 4px; font-family: Consolas, monospace; }
+        body, h1, h2, h3, p, ol, ul, li {
+          font-family: "Arial", sans-serif;
+          font-size: 12px;
+          line-height: 1.5;
+        }
+        .page { 
+          display: none; 
+          margin: 20px; 
+        }
+        .page.active { 
+          display: block; 
+        }
+        .nav-buttons { 
+          margin-top: 20px; 
+        }
+        button { 
+          margin: 5px; 
+          padding: 8px 16px; 
+          cursor: pointer; 
+        }
+        code {
+          background-color: #f5f5f5; 
+          padding: 2px 4px; 
+          font-size: 90%; 
+          border-radius: 4px; 
+          font-family: Consolas, monospace;
+        }
       </style>
       <!-- MathJax para renderizar LaTeX -->
       <script>
@@ -293,33 +323,46 @@ elif aba == "ℹ️ Sobre esse App":
       <div class="page active" id="page1">
         <h1>Sobre este Aplicativo</h1>
         <p>
-          Este aplicativo foi desenvolvido em <code>Python</code> utilizando a biblioteca <code>Streamlit</code> para análise estatística de consumo de água.
+          Este aplicativo foi desenvolvido em <code>Python</code> utilizando a biblioteca <code>Streamlit</code> 
+          para análise estatística de consumo de água. Ele permite o carregamento de arquivos CSV com dados de consumo, 
+          realiza cálculos estatísticos, gera gráficos e produz relatórios. Além do consumo mensal referencial, 
+          o aplicativo também calcula as vazões médias em função dos dias de operação do sistema, possibilitando 
+          avaliar a variação dessas vazões como uma estimativa preliminar para análise do projetista.
         </p>
         <p>
-          Ele permite o carregamento de arquivos CSV com dados de consumo, realiza cálculos estatísticos, gera gráficos e produz relatórios.
+          Para maior flexibilidade, foi incluído um fator de ajuste baseado no número de horas diárias de operação 
+          do sistema, permitindo ajustar as equações de vazão. Dessa forma, é possível simular diferentes cenários 
+          de operação (entre 1 hora e 24 horas diárias).
         </p>
         <div class="nav-buttons">
           <button onclick="showPage(2)">Próxima &raquo;</button>
         </div>
       </div>
+
       <!-- Página 2 -->
       <div class="page" id="page2">
         <h2>Estrutura do Código</h2>
         <ol>
           <li>
-            <strong>Importações e Configurações:</strong> Importa bibliotecas como <code>pandas</code>, <code>numpy</code>, <code>matplotlib</code>, <code>seaborn</code> e faz a chamada <code>st.set_page_config</code> logo no início.
+            <strong>Importações e Configurações:</strong> Importa bibliotecas como 
+            <code>pandas</code>, <code>numpy</code>, <code>matplotlib</code>, <code>seaborn</code> 
+            e faz a chamada <code>st.set_page_config</code> logo no início (primeira instrução de Streamlit).
           </li>
           <li>
             <strong>Session State:</strong> Utiliza <code>st.session_state</code> para manter dados entre interações.
           </li>
           <li>
-            <strong>Menu de Navegação:</strong> Define as funcionalidades do app, como Cálculo do Consumo, Gerar Histograma, Sobre esse App e Sobre o Modelo Estatístico.
+            <strong>Menu de Navegação:</strong> Define as funcionalidades do app, como 
+            <em>Cálculo do Consumo</em>, <em>Gerar Histograma</em>, <em>Sobre esse App</em> e 
+            <em>Sobre o Modelo Estatístico</em>.
           </li>
           <li>
-            <strong>Cálculo do Consumo:</strong> Permite o upload do CSV, configura parâmetros, executa cálculos estatísticos e gera gráficos.
+            <strong>Cálculo do Consumo:</strong> Permite o upload do CSV, configura parâmetros (incluindo número 
+            de horas diárias de operação), executa cálculos estatísticos e gera gráficos.
           </li>
           <li>
-            <strong>Relatório em Word:</strong> Gera um documento com os resultados e gráficos utilizando a biblioteca <code>python-docx</code>.
+            <strong>Relatório em Word:</strong> Gera um documento com os resultados e gráficos utilizando 
+            a biblioteca <code>python-docx</code>.
           </li>
         </ol>
         <div class="nav-buttons">
@@ -327,6 +370,7 @@ elif aba == "ℹ️ Sobre esse App":
           <button onclick="showPage(3)">Próxima &raquo;</button>
         </div>
       </div>
+
       <!-- Página 3 -->
       <div class="page" id="page3">
         <h2>Cálculos e Equações</h2>
@@ -335,12 +379,22 @@ elif aba == "ℹ️ Sobre esse App":
           $$ f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} \\exp\\Bigl(-\\frac{(x-\\mu)^2}{2\\sigma^2}\\Bigr). $$
         </p>
         <p>
-          Os testes de normalidade (Shapiro-Wilk, D'Agostino-Pearson e Kolmogorov-Smirnov) verificam se os dados seguem uma distribuição normal, aceitando a hipótese quando $$ p\\text{-valor} > 0.05. $$
+          Os testes de normalidade (Shapiro-Wilk, D'Agostino-Pearson e Kolmogorov-Smirnov) verificam se os dados 
+          seguem uma distribuição normal, aceitando a hipótese quando 
+          $$ p\\text{-valor} > 0.05. $$
+        </p>
+        <p>
+          Além disso, o fator de ajuste <em>r</em> é dado por 
+          $$ r = \\frac{24}{t}, $$
+          onde <em>t</em> é o número de horas diárias de operação (entre 1 e 24 horas). 
+          Esse fator multiplica as equações de vazão, permitindo avaliar cenários de operação em períodos reduzidos 
+          (por exemplo, apenas 8 horas por dia) ou período integral de 24 horas.
         </p>
         <div class="nav-buttons">
           <button onclick="showPage(2)">&laquo; Anterior</button>
         </div>
       </div>
+
       <script>
         function showPage(pageNumber) {
           document.getElementById("page1").classList.remove("active");
