@@ -52,10 +52,10 @@ if aba == "🧮 Cálculo do Consumo":
         if st.button("Carregar outro arquivo CSV"):
             st.session_state.df_consumo = None
             st.session_state.uploader_key += 1  # Incrementa a chave para reinicializar o file_uploader
-            st.experimental_rerun()
+            pass  # Removido st.experimental_rerun()
     else:
         uploaded_file = st.file_uploader(
-            "Faça o upload de um arquivo CSV (2 colunas: Mês, Consumo (m³))", 
+            "Faça o upload de um arquivo CSV (2 colunas: Mês, Consumo (m³))",
             type="csv",
             key=st.session_state.uploader_key
         )
