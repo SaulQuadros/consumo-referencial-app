@@ -26,13 +26,9 @@ if "df_consumo" not in st.session_state:
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
 
-# 3) Menu de navegação
-# Ajustamos a ordem para:
-# 1) Cálculo do Consumo
-# 2) Gerar Histograma Consumo
-# 3) Sobre esse App
-# 4) Sobre o Modelo Estatístico
-aba = st.sidebar.radio("Navegar para:", [
+# 3) Submenu "Abastecimento Água" com as quatro opções
+st.sidebar.title("Navegue para:")
+aba = st.sidebar.selectbox("Abastecimento Água", [
     "🧮 Cálculo do Consumo",
     "📊 Gerar Histograma Consumo",
     "ℹ️ Sobre esse App",
@@ -275,6 +271,7 @@ elif aba == "📊 Gerar Histograma Consumo":
 elif aba == "ℹ️ Sobre esse App":
     st.title("Sobre esse App")
     # HTML com estilo unificado (fonte Aptos, tamanho 12, espaçamento 1.5)
+    # Adicionado li { margin-bottom: 2em; } para espaçamento duplo entre itens numerados
     html_content = """
     <!DOCTYPE html>
     <html lang="pt-BR">
@@ -283,9 +280,12 @@ elif aba == "ℹ️ Sobre esse App":
       <title>Sobre esse App</title>
       <style>
         body, h1, h2, h3, p, ol, ul, li {
-          font-family: "Arial", sans-serif;
-          font-size: 16px;
+          font-family: "Aptos", sans-serif;
+          font-size: 12px;
           line-height: 1.5;
+        }
+        li {
+          margin-bottom: 2em; /* Espaçamento duplo entre itens numerados */
         }
         .page { 
           display: none; 
@@ -332,7 +332,7 @@ elif aba == "ℹ️ Sobre esse App":
         <p>
           Para maior flexibilidade, foi incluído um fator de ajuste baseado no número de horas diárias de operação 
           do sistema, permitindo ajustar as equações de vazão. Dessa forma, é possível simular diferentes cenários 
-          de operação entre 1 hora e 24 horas diárias.
+          de operação (entre 1 hora e 24 horas diárias).
         </p>
         <div class="nav-buttons">
           <button onclick="showPage(2)">Próxima &raquo;</button>
@@ -346,7 +346,7 @@ elif aba == "ℹ️ Sobre esse App":
           <li>
             <strong>Importações e Configurações:</strong> Importa bibliotecas como 
             <code>pandas</code>, <code>numpy</code>, <code>matplotlib</code>, <code>seaborn</code> 
-            e faz a chamada <code>st.set_page_config</code> logo no início primeira instrução de (Streamlit).
+            e faz a chamada <code>st.set_page_config</code> logo no início (primeira instrução de Streamlit).
           </li>
           <li>
             <strong>Session State:</strong> Utiliza <code>st.session_state</code> para manter dados entre interações.
@@ -357,8 +357,8 @@ elif aba == "ℹ️ Sobre esse App":
             <em>Sobre o Modelo Estatístico</em>.
           </li>
           <li>
-            <strong>Cálculo do Consumo:</strong> Permite o upload do CSV, configura parâmetros, incluindo número 
-            de horas diárias de operação, executa cálculos estatísticos e gera gráficos.
+            <strong>Cálculo do Consumo:</strong> Permite o upload do CSV, configura parâmetros (incluindo número 
+            de horas diárias de operação), executa cálculos estatísticos e gera gráficos.
           </li>
           <li>
             <strong>Relatório em Word:</strong> Gera um documento com os resultados e gráficos utilizando 
@@ -379,19 +379,60 @@ elif aba == "ℹ️ Sobre esse App":
           $$ f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} \\exp\\Bigl(-\\frac{(x-\\mu)^2}{2\\sigma^2}\\Bigr). $$
         </p>
         <p>
-          Os testes de normalidade Shapiro-Wilk, D'Agostino-Pearson e Kolmogorov-Smirnov verificam se os dados 
+          Os testes de normalidade (Shapiro-Wilk, D'Agostino-Pearson e Kolmogorov-Smirnov) verificam se os dados 
           seguem uma distribuição normal, aceitando a hipótese quando 
           $$ p\\text{-valor} > 0.05. $$
         </p>
         <p>
           Além disso, o fator de ajuste <em>r</em> é dado por 
           $$ r = \\frac{24}{t}, $$
-          onde <em>t</em> é o número de horas diárias de operação entre 1 e 24 horas. 
-          Esse fator multiplica as equações de vazão, permitindo avaliar cenários de operação em períodos reduzidos, 
-          por exemplo, apenas 8 horas por dia ou período integral de 24 horas.
+          onde <em>t</em> é o número de horas diárias de operação (entre 1 e 24 horas). 
+          Esse fator multiplica as equações de vazão, permitindo avaliar cenários de operação em períodos reduzidos 
+          (por exemplo, apenas 8 horas por dia) ou período integral de 24 horas.
         </p>
         <div class="nav-buttons">
           <button onclick="showPage(2)">&laquo; Anterior</button>
+          <button onclick="showPage(4)">Próxima &raquo;</button>
+        </div>
+      </div>
+
+      <!-- Página 4 -->
+      <div class="page" id="page4">
+        <h2>Equações de Vazão e Variáveis</h2>
+        <p>
+          Para calcular as vazões, definimos inicialmente:
+        </p>
+        <ul>
+          <li><strong>Consumo Referencial</strong>: valor estatístico que representa o consumo mensal alvo (m³).</li>
+          <li><strong>Dias de Operação</strong> (<em>dias_mes</em>): número de dias no mês considerado.</li>
+          <li><strong>Horas de Operação</strong> (<em>t</em>): quantas horas por dia o sistema fica operando.</li>
+          <li><strong>Fator de Ajuste</strong> (<em>r</em>): $$r = \\frac{24}{t}.$$</li>
+          <li><strong>K1</strong>: coeficiente de máxima diária.</li>
+          <li><strong>K2</strong>: coeficiente de máxima horária.</li>
+        </ul>
+        <p>
+          A vazão média básica (<em>q_med_base</em>) é calculada por:
+        </p>
+        <p>
+          $$ q_{\\text{med\\_base}} = \\frac{\\text{Consumo Referencial}}{\\text{dias\\_mes}} 
+          \\times \\frac{1}{\\text{tempo\\_dia}} \\times 1000. $$
+        </p>
+        <p>
+          Em seguida, aplicamos o fator <em>r</em> para obter a vazão média final:
+        </p>
+        <p>
+          $$ q_{\\text{med}} = q_{\\text{med\\_base}} \\times r. $$
+        </p>
+        <p>
+          As demais vazões são:
+        </p>
+        <ul>
+          <li><em>Vazão Máx. Diária</em>: $$ q_{\\text{max\\_dia}} = q_{\\text{med}} \\times K1. $$</li>
+          <li><em>Vazão Máx. Horária</em>: $$ q_{\\text{max\\_hora}} = q_{\\text{med}} \\times K2. $$</li>
+          <li><em>Vazão Máx. Dia+Hora</em>: $$ q_{\\text{max\\_real}} = q_{\\text{med}} \\times K1 \\times K2. $$</li>
+        </ul>
+        <div class="nav-buttons">
+          <button onclick="showPage(3)">&laquo; Anterior</button>
         </div>
       </div>
 
@@ -400,6 +441,7 @@ elif aba == "ℹ️ Sobre esse App":
           document.getElementById("page1").classList.remove("active");
           document.getElementById("page2").classList.remove("active");
           document.getElementById("page3").classList.remove("active");
+          document.getElementById("page4").classList.remove("active");
           document.getElementById("page" + pageNumber).classList.add("active");
         }
       </script>
