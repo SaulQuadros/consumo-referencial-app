@@ -29,14 +29,14 @@ if "uploader_key" not in st.session_state:
 # 3) Submenu "Abastecimento de Água" com as quatro opções
 st.sidebar.title("Abastecimento de Água:")
 aba = st.sidebar.selectbox("Consumo e Vazão", [
-    "🧮 Cálculo",
+    "🧮 Cálculo do Consumo e Vazão",
     "📊 Gerar Histograma",
     "ℹ️ Sobre esse App",
     "📘 Sobre o Modelo Estatístico"
 ])
 
 # 4) Aba "Cálculo do Consumo e Vazão"
-if aba == "🧮 Cálculo":
+if aba == "🧮 Cálculo do Consumo e Vazão":
     st.title("Cálculo do Consumo Referencial")
 
     st.header("Dados do Projeto")
@@ -158,7 +158,13 @@ if aba == "🧮 Cálculo":
         fig1, ax1 = plt.subplots(figsize=(10, 5))
         sns.histplot(consumo, kde=True, stat=stat_param, color="skyblue", edgecolor="black", bins=12, ax=ax1)
         x_vals = np.linspace(min(consumo), max(consumo), 1000)
-        normal_curve = norm.pdf(x_vals, loc=media, scale=desvio_padrao)
+        # Se o histograma for em frequência absoluta, escalamos a curva normal
+        if stat_param == "count":
+            bin_width = (max(consumo) - min(consumo)) / 12
+            n = len(consumo)
+            normal_curve = norm.pdf(x_vals, loc=media, scale=desvio_padrao) * n * bin_width
+        else:
+            normal_curve = norm.pdf(x_vals, loc=media, scale=desvio_padrao)
         ax1.plot(x_vals, normal_curve, color='red', linestyle='--', label='Distribuição Normal')
         ax1.axvline(consumo_ref, color='black', linestyle=':', label=f'{percentil}% ≈ {consumo_ref:,.0f} m³')
         ax1.set_xlabel("Consumo mensal (m³)")
@@ -241,7 +247,7 @@ if aba == "🧮 Cálculo":
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
 
-# 5) Aba "Gerar Histograma Consumo"
+# 5) Aba "Gerar Histograma"
 elif aba == "📊 Gerar Histograma":
     st.title("Gerar Tabela de Consumo Mensal")
     st.markdown("Informe os dados do projeto para gerar uma planilha de consumo mensal de água tratada.")
