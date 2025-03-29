@@ -407,8 +407,8 @@ elif aba == "ℹ️ Sobre esse App":
           <li><strong>Dias de Operação</strong> (<em>dias_mes</em>): número de dias no mês considerado.</li>
           <li><strong>Horas de Operação</strong> (<em>t</em>): quantas horas por dia o sistema fica operando.</li>
           <li><strong>Fator de Ajuste</strong> (<em>r</em>): $$r = \\frac{24}{t}.$$</li>
-          <li><strong>K1</strong>: coeficiente de máxima diária.</li>
-          <li><strong>K2</strong>: coeficiente de máxima horária.</li>
+          <li><strong>k1</strong>: coeficiente de máxima diária.</li>
+          <li><strong>k2</strong>: coeficiente de máxima horária.</li>
         </ul>
         <p>
           A vazão média básica (<em>q_med_base</em>) é calculada por:
