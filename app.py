@@ -29,14 +29,14 @@ if "uploader_key" not in st.session_state:
 # 3) Submenu "Abastecimento de Água" com as quatro opções
 st.sidebar.title("Abastecimento de Água:")
 aba = st.sidebar.selectbox("Consumo e Vazão", [
-    "🧮 Cálculo do Consumo e Vazão",
-    "📊 Gerar Histograma Consumo",
+    "🧮 Cálculo",
+    "📊 Gerar Histograma",
     "ℹ️ Sobre esse App",
     "📘 Sobre o Modelo Estatístico"
 ])
 
 # 4) Aba "Cálculo do Consumo e Vazão"
-if aba == "🧮 Cálculo do Consumo e Vazão":
+if aba == "🧮 Cálculo":
     st.title("Cálculo do Consumo Referencial")
 
     st.header("Dados do Projeto")
@@ -235,7 +235,7 @@ if aba == "🧮 Cálculo do Consumo e Vazão":
             )
 
 # 5) Aba "Gerar Histograma Consumo"
-elif aba == "📊 Gerar Histograma Consumo":
+elif aba == "📊 Gerar Histograma":
     st.title("Gerar Tabela de Consumo Mensal")
     st.markdown("Informe os dados do projeto para gerar uma planilha de consumo mensal de água tratada.")
     ano_inicial = st.number_input("Ano Inicial", min_value=2000, max_value=2100, value=2020, step=1)
