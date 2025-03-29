@@ -26,7 +26,7 @@ if "df_consumo" not in st.session_state:
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
 
-# 3) Submenu "Abastecimento Água" com as quatro opções
+# 3) Submenu "Abastecimento de Água" com as quatro opções
 st.sidebar.title("Abastecimento de Água:")
 aba = st.sidebar.selectbox("Consumo e Vazão", [
     "🧮 Cálculo do Consumo e Vazão",
@@ -35,8 +35,8 @@ aba = st.sidebar.selectbox("Consumo e Vazão", [
     "📘 Sobre o Modelo Estatístico"
 ])
 
-# 4) Aba "Cálculo do Consumo"
-if aba == "🧮 Cálculo do Consumo":
+# 4) Aba "Cálculo do Consumo e Vazão"
+if aba == "🧮 Cálculo do Consumo e Vazão":
     st.title("Cálculo do Consumo Referencial")
 
     st.header("Dados do Projeto")
@@ -270,7 +270,7 @@ elif aba == "📊 Gerar Histograma Consumo":
 # 6) Aba "ℹ️ Sobre esse App"
 elif aba == "ℹ️ Sobre esse App":
     st.title("Sobre esse App")
-    # HTML com estilo unificado (fonte Aptos, tamanho 12, espaçamento 1.5)
+    # HTML com estilo unificado (fonte Arial, tamanho 16, espaçamento 1.5)
     # Adicionado li { margin-bottom: 2em; } para espaçamento duplo entre itens numerados
     html_content = """
     <!DOCTYPE html>
@@ -280,7 +280,7 @@ elif aba == "ℹ️ Sobre esse App":
       <title>Sobre esse App</title>
       <style>
         body, h1, h2, h3, p, ol, ul, li {
-          font-family: "Aptos", sans-serif;
+          font-family: "Arial", sans-serif;
           font-size: 16px;
           line-height: 1.5;
         }
@@ -427,9 +427,9 @@ elif aba == "ℹ️ Sobre esse App":
           As demais vazões são:
         </p>
         <ul>
-          <li><em>Vazão Máx. Diária</em>: $$ q_{\\text{max\\_dia}} = q_{\\text{med}} \\times K1. $$</li>
-          <li><em>Vazão Máx. Horária</em>: $$ q_{\\text{max\\_hora}} = q_{\\text{med}} \\times K2. $$</li>
-          <li><em>Vazão Máx. Dia+Hora</em>: $$ q_{\\text{max\\_real}} = q_{\\text{med}} \\times K1 \\times K2. $$</li>
+          <li><em>Vazão Máx. Diária</em>: $$ q_{\\text{max\\_dia}} = q_{\\text{med}} \\times k1. $$</li>
+          <li><em>Vazão Máx. Horária</em>: $$ q_{\\text{max\\_hora}} = q_{\\text{med}} \\times k2. $$</li>
+          <li><em>Vazão Máx. Dia+Hora</em>: $$ q_{\\text{max\\_real}} = q_{\\text{med}} \\times k1 \\times k2. $$</li>
         </ul>
         <div class="nav-buttons">
           <button onclick="showPage(3)">&laquo; Anterior</button>
