@@ -27,16 +27,16 @@ if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
 
 # 3) Submenu "Abastecimento de Água" com as quatro opções
-st.sidebar.title("Abastecimento de Água:")
+st.sidebar.title("Demanda Hídrica:")
 aba = st.sidebar.selectbox("Consumo e Vazão", [
-    "🧮 Cálculo do Consumo e Vazão",
+    "🧮 Cálculo",
     "📊 Gerar Histograma",
     "ℹ️ Sobre esse App",
     "📘 Sobre o Modelo Estatístico"
 ])
 
 # 4) Aba "Cálculo do Consumo e Vazão"
-if aba == "🧮 Cálculo do Consumo e Vazão":
+if aba == "🧮 Cálculo":
     st.title("Cálculo do Consumo Referencial")
 
     st.header("Dados do Projeto")
