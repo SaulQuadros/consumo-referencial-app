@@ -147,15 +147,22 @@ if aba == "🧮 Cálculo":
         st.write(f"**{txt_dp}**")
         st.write(f"**{txt_ks}**")
 
+        # Novo campo para escolha da apresentação do histograma
+        tipo_hist = st.selectbox("Tipo de apresentação do histograma:", ["Frequência Absoluta", "Densidade de Probabilidade"])
+        if tipo_hist == "Densidade de Probabilidade":
+            stat_param = "density"
+        else:
+            stat_param = "count"
+
         st.header("5. Gráfico de Distribuição")
         fig1, ax1 = plt.subplots(figsize=(10, 5))
-        sns.histplot(consumo, kde=True, stat="density", color="skyblue", edgecolor="black", bins=12, ax=ax1)
+        sns.histplot(consumo, kde=True, stat=stat_param, color="skyblue", edgecolor="black", bins=12, ax=ax1)
         x_vals = np.linspace(min(consumo), max(consumo), 1000)
         normal_curve = norm.pdf(x_vals, loc=media, scale=desvio_padrao)
         ax1.plot(x_vals, normal_curve, color='red', linestyle='--', label='Distribuição Normal')
         ax1.axvline(consumo_ref, color='black', linestyle=':', label=f'{percentil}% ≈ {consumo_ref:,.0f} m³')
         ax1.set_xlabel("Consumo mensal (m³)")
-        ax1.set_ylabel("Densidade estimada")
+        ax1.set_ylabel("Frequência" if stat_param=="count" else "Densidade estimada")
         ax1.set_title("Distribuição do Consumo com KDE e Normal")
         ax1.legend()
         st.pyplot(fig1)
