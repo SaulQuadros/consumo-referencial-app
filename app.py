@@ -23,6 +23,8 @@ st.set_page_config(page_title="Consumo Referencial", layout="centered")
 # 2) Persistência do DataFrame no session_state
 if "df_consumo" not in st.session_state:
     st.session_state.df_consumo = None
+if "uploader_key" not in st.session_state:
+    st.session_state.uploader_key = 0
 
 # 3) Menu de navegação
 aba = st.sidebar.radio("Navegar para:", [
@@ -49,9 +51,14 @@ if aba == "🧮 Cálculo do Consumo":
         st.info("Arquivo CSV já carregado.")
         if st.button("Carregar outro arquivo CSV"):
             st.session_state.df_consumo = None
+            st.session_state.uploader_key += 1  # Incrementa a chave para reinicializar o file_uploader
             st.experimental_rerun()
     else:
-        uploaded_file = st.file_uploader("Faça o upload de um arquivo CSV (2 colunas: Mês, Consumo (m³))", type="csv")
+        uploaded_file = st.file_uploader(
+            "Faça o upload de um arquivo CSV (2 colunas: Mês, Consumo (m³))", 
+            type="csv",
+            key=st.session_state.uploader_key
+        )
         if uploaded_file is not None:
             try:
                 df = pd.read_csv(uploaded_file)
