@@ -15,7 +15,7 @@ import base64
 
 from io import BytesIO
 from docx import Document
-from docx.shared import Inches
+from docx.shared import Inches, Cm  # Adicionado Cm para definir as margens em cm
 
 # 1) Configuração da página (primeira instrução do Streamlit)
 st.set_page_config(page_title="Consumo Referencial", layout="centered")
@@ -162,6 +162,14 @@ if aba == "🧮 Cálculo do Consumo":
         st.header("Relatório em Word")
         if st.button("Gerar Relatório Word"):
             doc = Document()
+            
+            # Ajuste das margens: superior e inferior = 2 cm; esquerda e direita = 2,5 cm
+            for section in doc.sections:
+                section.top_margin = Cm(2)
+                section.bottom_margin = Cm(2)
+                section.left_margin = Cm(2.5)
+                section.right_margin = Cm(2.5)
+            
             doc.add_heading("Relatório de Consumo Referencial", 0)
 
             doc.add_heading("Dados do Projeto", level=1)
