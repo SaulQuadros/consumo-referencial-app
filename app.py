@@ -233,34 +233,39 @@ elif aba == "📘 Sobre o Modelo Estatístico":
 elif aba == "📊 Gerar Histograma Consumo":
     st.title("Gerar Tabela de Consumo Mensal")
     st.markdown("Informe os dados do projeto para gerar uma planilha de consumo mensal de água tratada.")
-    
+
     ano_inicial = st.number_input("Ano Inicial", min_value=2000, max_value=2100, value=2020, step=1)
     ano_final = st.number_input("Ano Final", min_value=2000, max_value=2100, value=2025, step=1)
     populacao = st.number_input("População atendida", min_value=1000, value=80000, step=1000)
-    
+
     if st.button("Criar Planilha"):
         if ano_final < ano_inicial:
             st.error("O Ano Final deve ser maior ou igual ao Ano Inicial.")
         else:
             anos = list(range(int(ano_inicial), int(ano_final) + 1))
-            meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-                     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-            
+            # Meses em português
+            meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
+                     "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+
             # Base para 50.000 habitantes -> média ~300.000 m³/mês, std ~50.000
             fator = populacao / 50000.0
             media_baseline = 300000 * fator
             std_baseline = 50000 * fator
-            
+
+            # Vamos gerar apenas duas colunas: Mês, Consumo (m³)
+            # E no campo "Mês" juntaremos o mês e o ano, ex: "Janeiro/2021"
             registros = []
             for ano in anos:
                 for mes in meses:
                     consumo = int(np.random.normal(media_baseline, std_baseline))
-                    registros.append({"Ano": ano, "Mês": mes, "Consumo (m³)": consumo})
+                    mes_ano = f"{mes}/{ano}"  # Ex: "Janeiro/2021"
+                    registros.append({"Mês": mes_ano, "Consumo (m³)": consumo})
+
             df_gerado = pd.DataFrame(registros)
-            
+
             # Exibe a tabela gerada
             st.dataframe(df_gerado)
-            
+
             # Converte para CSV e oferece download
             csv_gerado = df_gerado.to_csv(index=False).encode('utf-8')
             st.download_button(
