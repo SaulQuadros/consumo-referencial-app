@@ -35,6 +35,11 @@ aba = st.sidebar.selectbox("Consumo e Vazão", [
     "📘 Sobre o Modelo Estatístico"
 ])
 
+# Função para formatação numérica: ponto para milhar e vírgula para decimal
+def format_num(value, decimals=2):
+    fmt = f",.{decimals}f" if decimals > 0 else f",.0f"
+    return f"{value:{fmt}}".replace(",", "X").replace(".", ",").replace("X", ".")
+
 # 4) Aba "Cálculo do Consumo e Vazão"
 if aba == "🧮 Cálculo":
     st.title("Cálculo do Consumo Referencial")
@@ -123,13 +128,13 @@ if aba == "🧮 Cálculo":
         # Exibição em 3 colunas e 2 linhas
         col1, col2, col3 = st.columns(3)
         # Primeira linha
-        col1.metric("Consumo Referencial (m³)", f"{consumo_ref:,.0f}".replace(",", "X").replace(".", ",").replace("X", "."))
-        col2.metric("Desvio Padrão (m³)", f"{desvio_padrao:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
-        col3.metric("Vazão Média (L/s)", f"{q_med:.2f}".replace(".", ","))
+        col1.metric("Consumo Referencial (m³)", format_num(consumo_ref, 0))
+        col2.metric("Desvio Padrão (m³)", format_num(desvio_padrao, 2))
+        col3.metric("Vazão Média (L/s)", format_num(q_med, 2))
         # Segunda linha
-        col1.metric("Vazão Máx. Diária (L/s)", f"{q_max_dia:.2f}".replace(".", ","))
-        col2.metric("Vazão Máx. Horária (L/s)", f"{q_max_hora:.2f}".replace(".", ","))
-        col3.metric("Vazão Máx. Dia+Hora (L/s)", f"{q_max_real:.2f}".replace(".", ","))
+        col1.metric("Vazão Máx. Diária (L/s)", format_num(q_max_dia, 2))
+        col2.metric("Vazão Máx. Horária (L/s)", format_num(q_max_hora, 2))
+        col3.metric("Vazão Máx. Dia+Hora (L/s)", format_num(q_max_real, 2))
 
         st.header("4. Testes de Normalidade")
         stat_sw, p_sw = shapiro(consumo)
@@ -166,7 +171,7 @@ if aba == "🧮 Cálculo":
         else:
             normal_curve = norm.pdf(x_vals, loc=media, scale=desvio_padrao)
         ax1.plot(x_vals, normal_curve, color='red', linestyle='--', label='Distribuição Normal')
-        ax1.axvline(consumo_ref, color='black', linestyle=':', label=f'{percentil}% ≈ {consumo_ref:,.0f} m³')
+        ax1.axvline(consumo_ref, color='black', linestyle=':', label=f'{percentil}% ≈ {format_num(consumo_ref, 0)} m³')
         ax1.set_xlabel("Consumo mensal (m³)")
         ax1.set_ylabel("Frequência" if stat_param=="count" else "Densidade estimada")
         ax1.set_title("Distribuição do Consumo com KDE e Normal")
@@ -217,12 +222,12 @@ if aba == "🧮 Cálculo":
             doc.add_paragraph(f"K1 (máx. diária): {k1}")
             doc.add_paragraph(f"K2 (máx. horária): {k2}")
             doc.add_heading("Resultados", level=1)
-            doc.add_paragraph(f"Consumo Referencial (m³): {consumo_ref:,.0f}")
-            doc.add_paragraph(f"Desvio Padrão (m³): {desvio_padrao:,.2f}")
-            doc.add_paragraph(f"Vazão Média (L/s): {q_med:.2f}")
-            doc.add_paragraph(f"Vazão Máx. Diária (L/s): {q_max_dia:.2f}")
-            doc.add_paragraph(f"Vazão Máx. Horária (L/s): {q_max_hora:.2f}")
-            doc.add_paragraph(f"Vazão Máx. Dia+Hora (L/s): {q_max_real:.2f}")
+            doc.add_paragraph(f"Consumo Referencial (m³): {format_num(consumo_ref, 0)}")
+            doc.add_paragraph(f"Desvio Padrão (m³): {format_num(desvio_padrao, 2)}")
+            doc.add_paragraph(f"Vazão Média (L/s): {format_num(q_med, 2)}")
+            doc.add_paragraph(f"Vazão Máx. Diária (L/s): {format_num(q_max_dia, 2)}")
+            doc.add_paragraph(f"Vazão Máx. Horária (L/s): {format_num(q_max_hora, 2)}")
+            doc.add_paragraph(f"Vazão Máx. Dia+Hora (L/s): {format_num(q_max_real, 2)}")
             doc.add_heading("Testes de Normalidade", level=1)
             doc.add_paragraph(txt_sw)
             doc.add_paragraph(txt_dp)
