@@ -144,9 +144,9 @@ if aba == "🧮 Cálculo":
         def interpreta(p):
             return "✔️ Aceita a hipótese de normalidade." if p > 0.05 else "❌ Rejeita a hipótese de normalidade."
 
-        txt_sw = f"Shapiro-Wilk: Estatística = {stat_sw:.3f}, p-valor = {p_sw:.3f} — {interpreta(p_sw)}"
-        txt_dp = f"D'Agostino e Pearson: Estatística = {stat_dp:.3f}, p-valor = {p_dp:.3f} — {interpreta(p_dp)}"
-        txt_ks = f"Kolmogorov-Smirnov (KS): Estatística = {stat_ks:.3f}, p-valor = {p_ks:.3f} — {interpreta(p_ks)}"
+        txt_sw = f"Shapiro-Wilk: Estatística = {format_num(stat_sw, 3)}, p-valor = {format_num(p_sw, 3)} — {interpreta(p_sw)}"
+        txt_dp = f"D'Agostino e Pearson: Estatística = {format_num(stat_dp, 3)}, p-valor = {format_num(p_dp, 3)} — {interpreta(p_dp)}"
+        txt_ks = f"Kolmogorov-Smirnov (KS): Estatística = {format_num(stat_ks, 3)}, p-valor = {format_num(p_ks, 3)} — {interpreta(p_ks)}"
 
         st.write(f"**{txt_sw}**")
         st.write(f"**{txt_dp}**")
@@ -219,8 +219,8 @@ if aba == "🧮 Cálculo":
             doc.add_paragraph(f"Número de dias do mês: {dias_mes}")
             doc.add_paragraph(f"Número de horas diárias de operação: {horas_operacao}")
             doc.add_paragraph(f"Tempo diário (s): {tempo_dia}")
-            doc.add_paragraph(f"K1 (máx. diária): {k1}")
-            doc.add_paragraph(f"K2 (máx. horária): {k2}")
+            doc.add_paragraph(f"K1 (máx. diária): {format_num(k1, 2)}")
+            doc.add_paragraph(f"K2 (máx. horária): {format_num(k2, 2)}")
             doc.add_heading("Resultados", level=1)
             doc.add_paragraph(f"Consumo Referencial (m³): {format_num(consumo_ref, 0)}")
             doc.add_paragraph(f"Desvio Padrão (m³): {format_num(desvio_padrao, 2)}")
