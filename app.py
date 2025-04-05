@@ -144,9 +144,9 @@ if aba == "🧮 Cálculo":
         def interpreta(p):
             return "✔️ Aceita a hipótese de normalidade." if p > 0.05 else "❌ Rejeita a hipótese de normalidade."
 
-        txt_sw = f"Shapiro-Wilk: Estatística = {format_num(stat_sw, 3)}, p-valor = {format_num(p_sw, 3)} — {interpreta(p_sw)}"
-        txt_dp = f"D'Agostino e Pearson: Estatística = {format_num(stat_dp, 3)}, p-valor = {format_num(p_dp, 3)} — {interpreta(p_dp)}"
-        txt_ks = f"Kolmogorov-Smirnov (KS): Estatística = {format_num(stat_ks, 3)}, p-valor = {format_num(p_ks, 3)} — {interpreta(p_ks)}"
+        txt_sw = f"Shapiro-Wilk: Estatística = {format_num(stat_sw, 3)}; p-valor = {format_num(p_sw, 3)} — {interpreta(p_sw)}"
+        txt_dp = f"D'Agostino e Pearson: Estatística = {format_num(stat_dp, 3)}; p-valor = {format_num(p_dp, 3)} — {interpreta(p_dp)}"
+        txt_ks = f"Kolmogorov-Smirnov (KS): Estatística = {format_num(stat_ks, 3)}; p-valor = {format_num(p_ks, 3)} — {interpreta(p_ks)}"
 
         st.write(f"**{txt_sw}**")
         st.write(f"**{txt_dp}**")
